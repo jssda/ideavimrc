@@ -3,10 +3,6 @@
 set number
 set relativenumber
 
-" sethandler <C-O> i:ide
-" sethandler <C-I> i:ide
-" sethandler <C-U> i:ide
-
 " 插件, 设置输入命令时候的输入法插件
 set keep-english-in-normal-and-restore-in-insert
 " 进入insert模式时根据上下文判断是否恢复输入法，0禁用，1启用
@@ -16,9 +12,6 @@ let context_aware=0
 set scrolloff=5
 " 屏幕滚动左右保留预览代码行数
 set sidescrolloff=5
-
-" 共享系统剪切板
-" set clipboard^=unnamedplus,unnamed
 
 " 高亮搜索
 set incsearch
@@ -34,9 +27,6 @@ set showmode
 " 配置智能缩进
 set smartIndent
 
-" 重构禁用选择模式
-" set idearefactormode=keep
-
 " 格式化快捷键配置为Q
 map Q gq
 
@@ -51,14 +41,9 @@ set nrformats-=octal
 " 	Foo	  开		开		    Foo
 " 	\cfoo	  -		-		foo Foo FOO
 " 	foo\C	  -		-		foo
-"
+
 set ignorecase
 set smartcase
-
-" Toggle case and start typing. E.g. `<leader>iget`: `property` -> `getProperty`
-nmap <leader>i ~hi
-" Remove selection and toggle case. E.g. `v2l<leader>u`: `getProperty` -> `property`
-vmap <leader>u d~h
 
 " 配置使用J字符将两行合并为一行, 即idea中的CTRL-j快捷键的功能
 set ideajoin
@@ -69,9 +54,13 @@ set ideamarks
 " Use ctrl-c as an ide shortcut in normal and visual modes 配置CTRL-C在普通模式和可视模式中为idea快捷键, 在插入模式为vim快捷键
 sethandler <C-C> n-v:ide i:vim
 
-nnoremap <C-S> <ESC>"*p
-inoremap <C-S> <ESC>"*p
+nnoremap <C-V> <ESC>"*p
+inoremap <C-V> <ESC>"*p
+vnoremap <C-V> c<ESC>"*p
 
+nnoremap <C-S> <C-V>
+
+""" 兼容shift加方向键选择单词的操作习惯
 nnoremap <S-Left> :action EditorLeftWithSelection<CR>
 nnoremap <S-Right> :action EditorRightWithSelection<CR>
 nnoremap <S-Up> :action EditorUpWithSelection<CR>
@@ -97,12 +86,16 @@ Plug 'tpope/vim-surround'
 
 if has('ide')
     " mapping and options that exist only in IdeaVim
-    map <leader>f <Action>(GotoFile)
+    """ 查询文件 原<CTRL-SHIFT-N>
+    map <leader>n <Action>(GotoFile)
+    """ 查询功能   原<C-S-A>
     map <leader>a <Action>(GotoAction)
+    """ 原<SHIFT+TAB>
     map <leader>b <Action>(Switcher)
+    """ 原<C-I>
     map <leader>i <Action>(ImplementMethods)
-    " Map \r to the Reformat Code action
-    map <leader>r <Action>(ReformatCode)
+    """ 原<C-O>
+    map <leader>o <Action>(OverrideMethods)
     " 展示javaDoc 原idea<C-Q>快捷键
     map <leader>q <Action>(QuickJavaDoc)
     "" 查看方法调用
@@ -113,10 +106,25 @@ if has('ide')
     nmap <leader>s <Action>(ShowUsages)
     "" 查看依赖树
     nmap <leader>t <Action>(TypeHierarchy)
-    "" 查询谁在使用
-    nmap <leader>u <Action>(FindUsages)
+    "" super method
+    nmap <leader>u <Action>(GotoSuperMethod)
     "" 集中焦点到编辑器
     nmap <leader>x <Action>(HideAllWindows)
+    """ git 提交
+    nmap <leader>k <Action>(CheckinProject)
+
+    """ 使用idea中的关键字查询功能
+    nmap <leader>f <Action>(Find)
+    vmap <leader>f <Action>(Find)
+    imap <C-F> <Action>(Find)
+    vmap <C-F> <Action>(Find)
+    """ 使用idea中的关键字替换
+    nmap <leader>r <Action>(Replace)
+    vmap <leader>r <Action>(Replace)
+    """ imap <C-R> <Action>(Replace)
+
+    """全选
+    nmap ga <Action>($SelectAll)
 
     "" 方法跳跃
     nmap [[ <Action>(MethodUp)
@@ -136,5 +144,5 @@ if has('ide')
   endif
 else
   " some mappings for Vim/Neovim
-  nnoremap <leader>f <cmd>Telescope find_files<cr>
+  " nnoremap <leader>n <cmd>Telescope find_files<cr>
 endif
